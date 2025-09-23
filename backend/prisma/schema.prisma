@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  resumes   Resume[]
+}
+
+model Resume {
+  id             String    @id @default(cuid())
+  filename       String
+  parsedText     String    @db.Text
+  score          Int?
+  suggestions    Json?
+  scoreBreakdown Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id             String   @id @default(cuid())
+  title          String
+  company        String
+  description    String   @db.Text
+  requiredSkills String[]
+  url            String   @unique // --- ADDED: The new URL field. It's unique for each job.
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt // --- ADDED: A best practice for tracking updates.
+
+  // --- REMOVED: The old unique constraint, as the unique URL is more reliable.
+}
