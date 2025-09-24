@@ -1,6 +1,6 @@
 import {
   Controller,
-  Post,
+  Post, // Use the main POST endpoint
   UploadedFile,
   UseInterceptors,
   ParseFilePipe,
@@ -12,7 +12,7 @@ import {
   Req,
   Get,
   Param,
-  Delete, // Import Delete decorator
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResumesService } from './resumes.service';
@@ -23,7 +23,6 @@ import { Request } from 'express';
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
 
-  // --- NEW ENDPOINT: Get all resumes for the logged-in user ---
   @UseGuards(JwtAuthGuard)
   @Get()
   findAllForUser(@Req() req: Request & { user: { sub: string } }) {
@@ -31,14 +30,15 @@ export class ResumesController {
     return this.resumesService.findAllForUser(userId);
   }
 
-  @Post('upload')
+  // --- THE DEFINITIVE FIX: The endpoint is now POST /resumes, which is the standard ---
+  @Post() 
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  uploadAndParseResume(
+  createResume( // Renamed the method for clarity
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
           new FileTypeValidator({ fileType: /pdf|wordprocessingml/ }),
         ],
         exceptionFactory: (error) => {
@@ -65,7 +65,6 @@ export class ResumesController {
     return this.resumesService.findJobMatches(id);
   }
 
-  // --- NEW ENDPOINT: Delete a resume ---
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(
