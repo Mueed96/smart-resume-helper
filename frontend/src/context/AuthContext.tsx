@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 // --- THIS IS THE FIX: Added createdAt to the User interface ---
