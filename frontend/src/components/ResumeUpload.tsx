@@ -10,6 +10,9 @@ interface UploadResponse {
   filename: string;
 }
 
+// --- THE FIX: Create a clean base URL constant from the environment variable ---
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export function ResumeUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,8 @@ export function ResumeUpload() {
 
     try {
       const response = await axios.post<UploadResponse>(
-        'http://localhost:3001/resumes', // The correct NestJS backend endpoint
+        // --- THE FIX: Use the new base URL constant ---
+        `${API_BASE_URL}/resumes`, 
         formData,
         {
           headers: {

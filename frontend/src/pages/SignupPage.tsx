@@ -5,8 +5,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
-// An inline SVG for the Google Icon is now used directly in this component.
-// This makes the component self-contained and removes the dependency that was causing the build to fail.
+// Self-contained Google Icon to prevent any import issues
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M22.56,12.25 C22.56,11.45 22.49,10.68 22.36,9.93 L12.25,9.93 L12.25,14.45 L18.06,14.45 C17.81,15.99 17.02,17.29 15.82,18.1 L15.82,21.1 L19.66,21.1 C21.66,19.24 22.56,16.25 22.56,12.25 Z" />
@@ -16,6 +15,8 @@ const GoogleIcon = () => (
   </svg>
 );
 
+// --- THE DEFINITIVE FIX: Create a clean base URL constant ---
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function SignupPage() {
   const [name, setName] = useState('');
@@ -63,9 +64,8 @@ export function SignupPage() {
     setError(null);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/auth/signup`;
-      
-      await axios.post(apiUrl, {
+      // Use the clean base URL constant
+      await axios.post(`${API_BASE_URL}/auth/signup`, {
         name,
         email,
         password,

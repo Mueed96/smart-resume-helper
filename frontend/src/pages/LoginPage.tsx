@@ -4,8 +4,22 @@ import { Mail, Lock, LogIn, CheckCircle2, X } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { GoogleIcon } from '../components/GoogleIcon';
 import toast from 'react-hot-toast';
+
+// --- FIX 1: An inline SVG for the Google Icon is now used directly in this component. ---
+// This makes the component self-contained and solves the deployment build error where it couldn't find the GoogleIcon file.
+const GoogleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56,12.25 C22.56,11.45 22.49,10.68 22.36,9.93 L12.25,9.93 L12.25,14.45 L18.06,14.45 C17.81,15.99 17.02,17.29 15.82,18.1 L15.82,21.1 L19.66,21.1 C21.66,19.24 22.56,16.25 22.56,12.25 Z" />
+    <path fill="#34A853" d="M12.25,23 C15.45,23 18.1,21.92 19.66,20.08 L15.82,17.08 C14.75,17.81 13.6,18.25 12.25,18.25 C9.6,18.25 7.3,16.5 6.43,14.08 L2.45,14.08 L2.45,17.16 C4.18,20.53 7.89,23 12.25,23 Z" />
+    <path fill="#FBBC05" d="M6.43,14.08 C6.2,13.43 6.08,12.75 6.08,12 C6.08,11.25 6.2,10.57 6.43,9.92 L6.43,6.84 L2.45,6.84 C1.63,8.45 1.17,10.17 1.17,12 C1.17,13.83 1.63,15.55 2.45,17.16 L6.43,14.08 Z" />
+    <path fill="#EA4335" d="M12.25,5.75 C13.82,5.75 15.08,6.32 15.99,7.16 L19.74,3.41 C17.99,1.79 15.45,0.83 12.25,0.83 C7.89,0.83 4.18,3.47 2.45,6.84 L6.43,9.92 C7.3,7.5 9.6,5.75 12.25,5.75 Z" />
+  </svg>
+);
+
+// --- FIX 2: Create a clean base URL constant from the environment variable ---
+// This solves the "localhost" URL problem for the live deployed site.
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -49,7 +63,6 @@ export function LoginPage() {
     );
   };
 
-  // --- NEW HANDLER FOR GOOGLE BUTTON ---
   const handleGoogleLogin = () => {
     toast.custom(
       (t) => (
@@ -88,7 +101,8 @@ export function LoginPage() {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:3001/auth/login', {
+      // Use the new base URL constant
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
         password,
       });
@@ -169,7 +183,6 @@ export function LoginPage() {
               </div>
 
               <div>
-                {/* --- UPDATED GOOGLE BUTTON --- */}
                 <button 
                   type="button" 
                   onClick={handleGoogleLogin} 
