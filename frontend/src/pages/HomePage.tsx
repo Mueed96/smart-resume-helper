@@ -13,7 +13,6 @@ interface UploadResponse {
   id: string;
 }
 
-// --- FIX 1: Create a clean base URL constant from the environment variable ---
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function HomePage() {
@@ -78,7 +77,6 @@ export function HomePage() {
     formData.append('file', file);
 
     try {
-      // --- FIX 2: Use the new base URL constant and the correct endpoint ---
       const response = await axios.post<UploadResponse>(
         `${API_BASE_URL}/resumes`,
         formData,
@@ -110,7 +108,7 @@ export function HomePage() {
     if (uploadedResumeId) {
       setStatus('analyzing');
       await new Promise(resolve => setTimeout(resolve, 1500));
-      // --- FIX 3: Navigate to the correct dashboard URL ---
+      // --- THE DEFINITIVE FIX: Navigate to the correct dashboard URL ---
       navigate(`/dashboard/${uploadedResumeId}`);
     }
   };
