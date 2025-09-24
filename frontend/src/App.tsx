@@ -11,7 +11,7 @@ import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ProfilePage } from './pages/ProfilePage';
-import { MyResumesPage } from './pages/MyResumesPage'; // 1. Import MyResumesPage
+import { MyResumesPage } from './pages/MyResumesPage';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -30,9 +30,10 @@ function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/upload" element={<HomePage />} />
-          <Route path="/resumes/:id" element={<DashboardPage />} />
+          {/* --- THE DEFINITIVE FIX: The path now correctly matches your navigate() command --- */}
+          <Route path="/dashboard/:id" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/my-resumes" element={<MyResumesPage />} /> {/* 2. Add My Resumes route */}
+          <Route path="/my-resumes" element={<MyResumesPage />} />
         </Route>
         
         <Route path="*" element={<NotFoundPage />} />

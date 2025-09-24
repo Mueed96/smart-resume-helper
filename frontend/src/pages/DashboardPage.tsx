@@ -20,6 +20,7 @@ const themeColors = {
   surface: '#FFFFFF',
 };
 
+// --- THE FIX: Create a clean base URL constant from the environment variable ---
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function DashboardPage() {
@@ -37,6 +38,7 @@ export function DashboardPage() {
       const fetchAllData = async () => {
         try {
           setIsLoading(true);
+          // --- THE FIX: Use the new base URL constant for all API calls ---
           const analysisUrl = `${API_BASE_URL}/resumes/${id}`;
           const matchesUrl = `${API_BASE_URL}/resumes/${id}/matches`;
 
@@ -46,7 +48,7 @@ export function DashboardPage() {
             axios.get(analysisUrl, authHeaders),
             axios.get(matchesUrl, authHeaders),
           ]);
-          
+
           setAnalysis(analysisResponse.data);
           setJobMatches(matchesResponse.data);
         } catch (err) {
@@ -80,7 +82,7 @@ export function DashboardPage() {
       return () => clearInterval(timer);
     }
   }, [analysis]);
-  
+
   const handleDownload = () => {
     const dashboardElement = document.getElementById('dashboard-content');
     if (dashboardElement) {
@@ -94,7 +96,7 @@ export function DashboardPage() {
       });
     }
   };
-  
+
   if (isLoading) {
     return <DashboardSkeleton />;
   }
@@ -120,7 +122,7 @@ export function DashboardPage() {
     if (score >= 50) return { className: 'text-yellow-400', hex: themeColors.yellow };
     return { className: 'text-danger', hex: themeColors.danger };
   };
-  
+
   const keywordsToHighlight = ['Education', 'Experience', 'Skills', ...jobMatches.flatMap(j => j.matchingSkills)];
   const scoreColor = getScoreColorInfo(analysis?.score ?? 0);
 
