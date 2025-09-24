@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../api'; // --- FIX 1: Import our new central 'api' instance ---
+import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -20,7 +20,7 @@ const themeColors = {
   surface: '#FFFFFF',
 };
 
-// We no longer need the API_BASE_URL constant here, as that logic is now handled in api.ts
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function DashboardPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,16 +37,16 @@ export function DashboardPage() {
       const fetchAllData = async () => {
         try {
           setIsLoading(true);
-          
+          const analysisUrl = `${API_BASE_URL}/resumes/${id}`;
+          const matchesUrl = `${API_BASE_URL}/resumes/${id}/matches`;
+
           const authHeaders = { headers: { 'Authorization': `Bearer ${token}` } };
 
-          // --- FIX 2: Use our new 'api' instance for all GET requests ---
-          // It already knows the base URL. We just provide the endpoints.
           const [analysisResponse, matchesResponse] = await Promise.all([
-            api.get(`/resumes/${id}`, authHeaders),
-            api.get(`/resumes/${id}/matches`, authHeaders),
+            axios.get(analysisUrl, authHeaders),
+            axios.get(matchesUrl, authHeaders),
           ]);
-
+          
           setAnalysis(analysisResponse.data);
           setJobMatches(matchesResponse.data);
         } catch (err) {
@@ -80,7 +80,7 @@ export function DashboardPage() {
       return () => clearInterval(timer);
     }
   }, [analysis]);
-
+  
   const handleDownload = () => {
     const dashboardElement = document.getElementById('dashboard-content');
     if (dashboardElement) {
@@ -94,7 +94,7 @@ export function DashboardPage() {
       });
     }
   };
-
+  
   if (isLoading) {
     return <DashboardSkeleton />;
   }
@@ -120,7 +120,7 @@ export function DashboardPage() {
     if (score >= 50) return { className: 'text-yellow-400', hex: themeColors.yellow };
     return { className: 'text-danger', hex: themeColors.danger };
   };
-
+  
   const keywordsToHighlight = ['Education', 'Experience', 'Skills', ...jobMatches.flatMap(j => j.matchingSkills)];
   const scoreColor = getScoreColorInfo(analysis?.score ?? 0);
 

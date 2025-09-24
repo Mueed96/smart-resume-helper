@@ -2,22 +2,21 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../api'; // --- FIX 1: Import our new central 'api' instance ---
+import axios from 'axios';
 
-// Defines the structure of the expected response from the backend
 interface UploadResponse {
-  id: string; // The ID of the newly created resume
+  id: string;
   filename: string;
 }
 
-// We no longer need the API_BASE_URL constant here, as that logic is now handled in api.ts
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function ResumeUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const navigate = useNavigate();
-  const { token } = useAuth(); // Gets the auth token from your context
+  const { token } = useAuth();
 
   const onDrop = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -35,27 +34,23 @@ export function ResumeUpload() {
     formData.append('file', file);
 
     try {
-      // --- FIX 2: Use our new 'api' instance for the POST request ---
-      const response = await api.post<UploadResponse>(
-        '/resumes', 
+      const response = await axios.post<UploadResponse>(
+        `${API_BASE_URL}/resumes`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`, // Adds the required auth header
+            'Authorization': `Bearer ${token}`,
           },
         }
       );
       
       console.log('Upload successful:', response.data);
-
-      // Immediately redirect to the dashboard with the new resume ID
       navigate(`/dashboard/${response.data.id}`);
 
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'An unexpected error occurred. Please try again.';
       setError(Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage);
-      console.error('Upload failed:', err);
     } finally {
       setIsUploading(false);
     }
@@ -88,7 +83,6 @@ export function ResumeUpload() {
           <p className="text-gray-500">
             {isDragActive
               ? 'Drop your resume here...'
-              // eslint-disable-next-line quotes
               : "Drag 'n' drop your resume here, or click to select a file (PDF or DOCX)"}
           </p>
         )}
