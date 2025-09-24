@@ -6,12 +6,15 @@ import { CheckCircle, File as FileIcon, UploadCloud, ArrowLeft } from 'lucide-re
 import { SuccessDisplay } from '../components/SuccessDisplay';
 import { StepIndicator } from '../components/StepIndicator';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext'; // 1. Import useAuth to get the token
+import { useAuth } from '../context/AuthContext';
 
 type UploadStatus = 'idle' | 'file-selected' | 'uploading' | 'success' | 'error' | 'analyzing';
 interface UploadResponse {
   id: string;
 }
+
+// --- FIX 1: Create a clean base URL constant from the environment variable ---
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function HomePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -20,7 +23,7 @@ export function HomePage() {
   const [uploadedResumeId, setUploadedResumeId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { token } = useAuth(); // 2. Get the token from our AuthContext
+  const { token } = useAuth();
 
   const currentStep = useMemo(() => {
     switch (status) {
@@ -75,11 +78,11 @@ export function HomePage() {
     formData.append('file', file);
 
     try {
+      // --- FIX 2: Use the new base URL constant and the correct endpoint ---
       const response = await axios.post<UploadResponse>(
-        'http://localhost:3001/resumes/upload',
+        `${API_BASE_URL}/resumes`,
         formData,
         {
-          // 3. THIS IS THE FIX: Add the Authorization header with the token
           headers: { 
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}` 
@@ -107,7 +110,8 @@ export function HomePage() {
     if (uploadedResumeId) {
       setStatus('analyzing');
       await new Promise(resolve => setTimeout(resolve, 1500));
-      navigate(`/resumes/${uploadedResumeId}`);
+      // --- FIX 3: Navigate to the correct dashboard URL ---
+      navigate(`/dashboard/${uploadedResumeId}`);
     }
   };
   

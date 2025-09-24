@@ -7,6 +7,9 @@ import { Link } from 'react-router-dom';
 import { FilePlus, FolderOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// --- THE FIX: Create a clean base URL constant from the environment variable ---
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 // Define the structure of the resume data we'll receive
 interface UserResume {
   id: string;
@@ -26,7 +29,8 @@ export function MyResumesPage() {
       const fetchResumes = async () => {
         try {
           setIsLoading(true);
-          const response = await axios.get('http://localhost:3001/resumes', {
+          // --- THE FIX: Use the new base URL constant ---
+          const response = await axios.get(`${API_BASE_URL}/resumes`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setResumes(response.data);
@@ -46,13 +50,12 @@ export function MyResumesPage() {
       return;
     }
 
-    // A simple confirmation before deleting
     if (window.confirm('Are you sure you want to delete this resume? This action cannot be undone.')) {
       try {
-        await axios.delete(`http://localhost:3001/resumes/${resumeId}`, {
+        // --- THE FIX: Use the new base URL constant ---
+        await axios.delete(`${API_BASE_URL}/resumes/${resumeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Remove the deleted resume from the local state for an instant UI update
         setResumes(prevResumes => prevResumes.filter(r => r.id !== resumeId));
         toast.success('Resume deleted successfully.');
       } catch (err) {

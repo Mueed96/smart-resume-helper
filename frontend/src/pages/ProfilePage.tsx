@@ -4,6 +4,9 @@ import { User, Mail, Calendar, Edit, Save, X } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// --- THE FIX: Create a clean base URL constant from the environment variable ---
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export function ProfilePage() {
   const { user, token, login } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -18,8 +21,9 @@ export function ProfilePage() {
 
     setIsLoading(true);
     try {
+      // --- THE FIX: Use the new base URL constant ---
       const response = await axios.patch(
-        'http://localhost:3001/auth/profile',
+        `${API_BASE_URL}/auth/profile`,
         { name: editedName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,7 +69,6 @@ export function ProfilePage() {
                 )}
               </div>
               {isEditing ? (
-                // --- UPDATED SAVE/CANCEL BUTTONS ---
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={handleCancel} 
@@ -82,7 +85,6 @@ export function ProfilePage() {
                   </button>
                 </div>
               ) : (
-                // --- UPDATED EDIT BUTTON ---
                 <button 
                   onClick={() => setIsEditing(true)} 
                   className="p-2 border border-primary text-primary rounded-full hover:bg-primary/10 transition-all duration-200"
