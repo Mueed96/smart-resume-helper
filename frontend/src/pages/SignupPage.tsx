@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Mail, Lock, UserPlus, CheckCircle2, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../api'; // --- FIX 1: Import our new central 'api' instance instead of the raw 'axios' library ---
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -15,8 +15,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// --- THE DEFINITIVE FIX: Create a clean base URL constant ---
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// We no longer need the API_BASE_URL constant here, as that logic is now handled in api.ts
 
 export function SignupPage() {
   const [name, setName] = useState('');
@@ -64,8 +63,9 @@ export function SignupPage() {
     setError(null);
 
     try {
-      // Use the clean base URL constant
-      await axios.post(`${API_BASE_URL}/auth/signup`, {
+      // --- FIX 2: Use our new 'api' instance for the POST request ---
+      // It already knows the correct base URL. We just need to provide the endpoint.
+      await api.post('/auth/signup', {
         name,
         email,
         password,

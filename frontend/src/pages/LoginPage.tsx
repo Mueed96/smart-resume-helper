@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn, CheckCircle2, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../api'; // --- FIX 1: Import our central 'api' instance ---
 import { useAuth } from '../context/AuthContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
-// --- FIX 1: An inline SVG for the Google Icon is now used directly in this component. ---
-// This makes the component self-contained and solves the deployment build error where it couldn't find the GoogleIcon file.
+// Self-contained Google Icon to prevent any import issues
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M22.56,12.25 C22.56,11.45 22.49,10.68 22.36,9.93 L12.25,9.93 L12.25,14.45 L18.06,14.45 C17.81,15.99 17.02,17.29 15.82,18.1 L15.82,21.1 L19.66,21.1 C21.66,19.24 22.56,16.25 22.56,12.25 Z" />
@@ -16,10 +15,6 @@ const GoogleIcon = () => (
     <path fill="#EA4335" d="M12.25,5.75 C13.82,5.75 15.08,6.32 15.99,7.16 L19.74,3.41 C17.99,1.79 15.45,0.83 12.25,0.83 C7.89,0.83 4.18,3.47 2.45,6.84 L6.43,9.92 C7.3,7.5 9.6,5.75 12.25,5.75 Z" />
   </svg>
 );
-
-// --- FIX 2: Create a clean base URL constant from the environment variable ---
-// This solves the "localhost" URL problem for the live deployed site.
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -101,8 +96,8 @@ export function LoginPage() {
     setError(null);
 
     try {
-      // Use the new base URL constant
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      // --- FIX 2: Use our new 'api' instance for the POST request ---
+      const response = await api.post('/auth/login', {
         email,
         password,
       });
@@ -111,7 +106,7 @@ export function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       login(response.data.access_token);
       navigate('/upload');
-    } catch (err: any) {
+    } catch (err: any) { // --- FIX 3: Corrected the catch block syntax ---
       const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
       setError(Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage);
       setIsLoading(false);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api'; // --- FIX 1: Import our new central 'api' instance ---
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -20,8 +20,7 @@ const themeColors = {
   surface: '#FFFFFF',
 };
 
-// --- THE FIX: Create a clean base URL constant from the environment variable ---
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// We no longer need the API_BASE_URL constant here, as that logic is now handled in api.ts
 
 export function DashboardPage() {
   const { id } = useParams<{ id: string }>();
@@ -38,15 +37,14 @@ export function DashboardPage() {
       const fetchAllData = async () => {
         try {
           setIsLoading(true);
-          // --- THE FIX: Use the new base URL constant for all API calls ---
-          const analysisUrl = `${API_BASE_URL}/resumes/${id}`;
-          const matchesUrl = `${API_BASE_URL}/resumes/${id}/matches`;
-
+          
           const authHeaders = { headers: { 'Authorization': `Bearer ${token}` } };
 
+          // --- FIX 2: Use our new 'api' instance for all GET requests ---
+          // It already knows the base URL. We just provide the endpoints.
           const [analysisResponse, matchesResponse] = await Promise.all([
-            axios.get(analysisUrl, authHeaders),
-            axios.get(matchesUrl, authHeaders),
+            api.get(`/resumes/${id}`, authHeaders),
+            api.get(`/resumes/${id}/matches`, authHeaders),
           ]);
 
           setAnalysis(analysisResponse.data);

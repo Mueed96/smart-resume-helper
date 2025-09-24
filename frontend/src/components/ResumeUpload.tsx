@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../api'; // --- FIX 1: Import our new central 'api' instance ---
 
 // Defines the structure of the expected response from the backend
 interface UploadResponse {
@@ -10,8 +10,7 @@ interface UploadResponse {
   filename: string;
 }
 
-// --- THE FIX: Create a clean base URL constant from the environment variable ---
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// We no longer need the API_BASE_URL constant here, as that logic is now handled in api.ts
 
 export function ResumeUpload() {
   const [isUploading, setIsUploading] = useState(false);
@@ -36,9 +35,9 @@ export function ResumeUpload() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post<UploadResponse>(
-        // --- THE FIX: Use the new base URL constant ---
-        `${API_BASE_URL}/resumes`, 
+      // --- FIX 2: Use our new 'api' instance for the POST request ---
+      const response = await api.post<UploadResponse>(
+        '/resumes', 
         formData,
         {
           headers: {
